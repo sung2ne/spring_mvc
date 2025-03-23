@@ -28,6 +28,9 @@ public class PostController {
     // 파일 업로드 경로
     private final String uploadPath = "C:/upload/post";
 
+    // 로깅을 위한 변수
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+
     // 게시글 등록 (화면, GET)
     @GetMapping("/create")
     public String create() {

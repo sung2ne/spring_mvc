@@ -1,10 +1,20 @@
 package com.example.spring.post;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +34,9 @@ public class PostController {
 
     // 파일 업로드 경로
     private final String uploadPath = "C:/upload/post";
+
+    // 로깅을 위한 변수
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
     // 게시글 등록 (화면, GET)
     @GetMapping("/create")
@@ -166,7 +179,8 @@ public class PostController {
             // 게시글 수정 실패
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 수정에 실패했습니다.");
             return "redirect:/posts/" + id + "/update";
-        } catch (Exception e) {
+        } catch (IOException | IllegalStateException e) {
+            logger.error("파일 업로드 오류: " + e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드에 실패했습니다.");
             return "redirect:/posts/" + id + "/update";
         }
@@ -174,7 +188,7 @@ public class PostController {
 
     // 게시글 삭제 (처리, POST)
     @PostMapping("/{id}/delete")
-    public String deletePost(@PathVariable("id") int id, PostDto posts, RedirectAttributes redirectAttributes) {
+    public String deletePost(@PathVariable("id") int id, PostDto post, RedirectAttributes redirectAttributes) {
         try {
             // 기존 게시글 정보 조회
             post.setId(id);
@@ -189,7 +203,7 @@ public class PostController {
             }
 
             // 게시글 삭제
-            boolean deleted = postService.delete(posts);
+            boolean deleted = postService.delete(post);
 
             if (deleted) {
                 redirectAttributes.addFlashAttribute("successMessage", "게시글이 삭제되었습니다.");
@@ -198,7 +212,8 @@ public class PostController {
 
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 삭제에 실패했습니다.");
             return("redirect:/posts/" + id);
-        } catch (Exception e) {
+        } catch (IOException | IllegalStateException e) {
+            logger.error("파일 삭제 오류: " + e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "업로드 파일 삭제에 실패했습니다.");
             return("redirect:/posts/" + id);
         }
@@ -232,9 +247,8 @@ public class PostController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedDownloadName + "\"")
                     .body(resource);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | IllegalStateException e) {
+            logger.error("파일 다운로드 오류: " + e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
