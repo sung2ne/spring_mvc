@@ -68,8 +68,8 @@ public class PostController {
 
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 등록에 실패했습니다.");
             return "redirect:/posts/create";
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | IllegalStateException e) {
+            logger.error("파일 업로드 오류: " + e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드 중 오류가 발생했습니다.");
             return "redirect:/posts/create";
         }

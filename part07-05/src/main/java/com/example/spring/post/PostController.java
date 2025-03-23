@@ -1,6 +1,11 @@
 package com.example.spring.post;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.http.HttpHeaders;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.example.spring.post.PostDto;
 
 @Controller
 @RequestMapping("/posts")
@@ -68,8 +75,8 @@ public class PostController {
 
             redirectAttributes.addFlashAttribute("errorMessage", "게시글 등록에 실패했습니다.");
             return "redirect:/posts/create";
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | IllegalStateException e) {
+            logger.error("파일 업로드 오류: " + e.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드 중 오류가 발생했습니다.");
             return "redirect:/posts/create";
         }
