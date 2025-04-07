@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="postMapper">
+
+    <!-- 게시글 등록 -->
+    <insert id="create" parameterType="com.example.spring.post.PostDto" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+        INSERT INTO POSTS (
+            TITLE, 
+            CONTENT, 
+            USERNAME, 
+            PASSWORD
+        ) VALUES (
+            #{title}, 
+            #{content}, 
+            #{username}, 
+            #{password}
+        )
+        ]]>
+    </insert>
+
+</mapper>
